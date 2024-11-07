@@ -1,0 +1,281 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+struct ElementoLista{
+
+    int valor; //ver se eh do tipo int os elementos recebidos //valor daquele elemento
+    struct ElementoLista *prox; //ponteiro que aponta para o proximo elemento da lista
+    struct ElementoLista *ant; //ponteiro que aponta para o elemento anterior da lista
+};
+
+void BubbleSort(struct ElementoLista* elemento);
+void InsertionSort(struct ElementoLista* elemento);
+struct ElementoLista * MergeSort(struct ElementoLista* elemento);
+void QuickSort(struct ElementoLista* primeiro, struct ElementoLista* ultimo);
+void Inserir(struct ElementoLista* *head, int valor_adicionado);
+void Imprimir(struct ElementoLista* elemento);
+struct ElementoLista* IniciarLista();
+int VerificaTamanho(struct ElementoLista* elemento);
+
+
+
+int main(){
+
+    struct ElementoLista* lista = IniciarLista();  // Inicia a lista
+    Inserir(&lista, 3);
+    Inserir(&lista, 1);
+    Inserir(&lista, 4);
+    Inserir(&lista, 2);
+    
+    printf("Lista antes da ordenacao:\n");
+    Imprimir(lista);
+
+    /*
+    BubbleSort(lista);
+    */
+
+    /*
+    InsertionSort(lista);
+    */
+
+    /*
+    MergeSort(lista);
+    */
+    
+    //para o QuickSort
+    
+    struct ElementoLista* ultimo = lista;
+    while (ultimo->prox != NULL) {
+        ultimo = ultimo->prox;
+    }
+    /*
+    QuickSort(lista, ultimo);  
+    
+    printf("\nLista apos a ordenacao:\n");*/
+    
+    Imprimir(lista); // Imprime a lista ordenada
+    return 0;
+}
+
+struct ElementoLista *IniciarLista(){
+    return NULL; //incia uma lista vazia
+}
+
+void Inserir(struct ElementoLista* *head, int valor_adicionado){
+    //alocando o espaço na memoria
+    struct ElementoLista *novo_elemento = (struct ElementoLista *) malloc (sizeof( struct ElementoLista));
+    //atribuindo um valor ao elemento
+    novo_elemento -> valor = valor_adicionado;
+    //fazendo com que o ponteiro aponte para cabeça da lista
+    novo_elemento -> prox = * head;
+    //ainda não existe elemento anterior ao primeiro
+    novo_elemento -> ant = NULL;
+    //fazendo com que o novo seja o anterior
+    if(*head != NULL){
+        (*head) -> ant = novo_elemento;
+    }
+    //faz com que a cabeça da lista vire o novo valor da lista
+    *head = novo_elemento;
+}
+
+
+void Imprimir(struct ElementoLista* elemento){
+    while(elemento != NULL){
+        printf("%d \n",elemento -> valor);
+        elemento = elemento -> prox;
+    }
+}
+
+int VerificaTamanho(struct ElementoLista* elemento){
+    int tamanho = 0;
+    while(elemento != NULL){
+        tamanho ++;
+        elemento = elemento -> prox;
+    }
+    return tamanho;
+}
+
+void BubbleSort(struct ElementoLista* elemento){
+    //troca de posição com o seu consecutivo, caso a ordem esteja errada até todos eles estiverem em ordem
+    if (elemento == NULL) return;
+    bool swap;
+    struct ElementoLista * elemento_atual;
+    struct ElementoLista * ultimo = NULL;
+
+    do{
+        swap = false; //não houve troca
+        elemento_atual = elemento;
+
+        //enquanto o proximo elemento apontar para outro
+        while (elemento_atual->prox != ultimo){
+            struct ElementoLista * proximo = elemento_atual -> prox; //proximo aponta para o elemento depois do atual
+            //se o elemento comparado for maior do que o seu sucessor
+            if(elemento_atual -> valor > proximo -> valor){
+                //os valores trocam entre si
+                int temp = elemento_atual -> valor;
+                elemento_atual ->valor = proximo -> valor;
+                proximo -> valor = temp;
+                swap = true; //houve troca
+            }
+            elemento_atual = elemento_atual -> prox; //vai para o proximo elemento a ser comparado
+        }
+        ultimo = elemento_atual;
+    } while (swap == true);
+}
+
+void InsertionSort(struct ElementoLista* elemento){
+    //pega um elemento e compara com todos a sua primeiro
+    if (elemento == NULL) return;
+    //começa pelo segundo, já que o anterior ao primeiro é nulo
+    struct ElementoLista * atual = elemento -> prox; 
+    //enquanto não chegar ao fim da lista
+    while(atual!=NULL){
+        struct ElementoLista * anterior = atual -> ant;
+        int valor = atual -> valor;
+        //enquanto o atual não for o primeiro da lista e o valor atual for menor que os seus anteriores
+        while(anterior != NULL && valor < anterior -> valor){
+            //não pode acessar o atual diretamente, pois modificará o valor (int valor) antes de passá-lo para o elemento a primeiro
+            anterior -> prox -> valor = anterior -> valor; //o valor do próximo do anterior vira o valor do anterior
+            anterior = anterior -> ant; //agora irá comparar com um valor mais a primeiro ainda
+        }
+        
+        if(anterior == NULL){
+            elemento -> valor = valor; //caso seja o menor elemento encontrado
+        }
+
+        else{
+            anterior -> prox -> valor = valor; //caso o elemento não pertença a primeira posição
+        }
+
+        atual = atual -> prox; //vai para o próximo elemento a ser comparado
+
+    }
+}
+
+struct ElementoLista * MergeSort(struct ElementoLista* elemento){
+    if (elemento == NULL || elemento->prox == NULL) return elemento;
+
+    // Dividindo a lista em duas partes
+    struct ElementoLista* primeiro = elemento;
+    struct ElementoLista* ultimo = elemento->prox;
+
+    // Encontrando o ponto médio da lista
+    while  (ultimo != NULL && ultimo->prox != NULL) {
+     primeiro = primeiro->prox;
+     ultimo = ultimo->prox->prox;
+    }
+
+    // Dividir as listas
+ ultimo = primeiro->prox;
+ primeiro->prox = NULL;
+
+    // Recursivamente ordenar as duas metades
+ primeiro = MergeSort(elemento);
+ ultimo = MergeSort (ultimo);
+
+    // Mesclando as duas metades ordenadas
+    struct ElementoLista* new_head = NULL;
+    struct ElementoLista* atual = NULL;
+
+    while  (primeiro != NULL && ultimo != NULL) {
+        struct ElementoLista* menor;
+
+        if  (primeiro->valor < ultimo->valor) {
+            menor = primeiro;
+         primeiro = primeiro->prox;
+        } else {
+            menor = ultimo;
+         ultimo = ultimo->prox;
+        }
+
+        // Atualizando a nova cabeça da lista ordenada
+        if (new_head == NULL) {
+            new_head = menor;
+            atual = new_head;
+        } else {
+            atual->prox = menor;
+            menor->ant = atual;
+            atual = menor;
+        }
+    }
+
+    // Anexando o restante dos elementos
+    if  (primeiro != NULL) {
+        atual->prox = primeiro;
+     primeiro->ant = atual;
+    }
+    if  (ultimo != NULL) {
+        atual->prox = ultimo;
+     ultimo->ant = atual;
+    }
+
+    return new_head;
+}
+
+void QuickSort(struct ElementoLista* primeiro, struct ElementoLista* ultimo){
+    //escolhendo o pivot, muda-o de posição com o último elemento da lista. Comparando com o pivot, vê o maior elemento que ele do primeiro para ultimo e o menor do ultimo para primeiro, agora troca a posição entre eles. Faz isso até o item maior estar depois que o item menor na lista, troca o item maior com o pivot.Agora ordena o lado esquerdo ao pivot.
+
+    if (primeiro == NULL || ultimo == NULL || primeiro == ultimo || primeiro == ultimo->prox){return;}
+
+    struct ElementoLista* elemento = primeiro;
+    
+    //o pivot deve ser o mais próximo de uma mediana. para isso, pega o elemento que o anterior é nulo, o do meio e o que aponta para nulo. compara o valor entre eles e o que estiver entre dois, será o pivot.
+    int tamanho = VerificaTamanho(elemento);
+    int meio = tamanho/2;
+    for (int i = 0; i<meio && elemento != NULL; i++){
+        elemento = elemento -> prox;
+    }
+    struct ElementoLista * elem_meio = elemento;
+    struct ElementoLista * pivot;
+    if((elem_meio->valor >= primeiro->valor && elem_meio->valor <= ultimo->valor) || 
+        (elem_meio->valor <= primeiro->valor && elem_meio->valor >= ultimo->valor)){
+        pivot = elem_meio;
+    }
+    else if((primeiro->valor >= elem_meio->valor && primeiro->valor <= ultimo->valor) || 
+               (primeiro->valor <= elem_meio->valor && primeiro->valor >= ultimo->valor)){
+        pivot = primeiro;
+    }
+    else{
+        pivot = ultimo;
+    }
+
+    //colocando o pivot pro final da lista
+    if (pivot != ultimo){
+        int pivot_valor = pivot -> valor;
+        pivot -> valor = ultimo -> valor;
+        ultimo -> valor = pivot_valor;
+    }
+    int pivot_valor = ultimo -> valor;
+    
+    //comparando o valor com o pivot
+    struct ElementoLista * atual_esq = primeiro;
+    struct ElementoLista * atual_dir = ultimo -> ant; 
+    while(atual_esq != atual_dir && atual_esq -> prox != atual_dir){
+        //looping para encontrar o maior
+        while(atual_esq != NULL && atual_esq -> valor <= pivot_valor && atual_esq != atual_dir){
+            atual_esq = atual_esq -> prox;
+        }
+        //looping para encontrar o menor
+        while(atual_dir != NULL && atual_dir -> valor >= pivot_valor && atual_dir != atual_esq){
+            atual_dir = atual_dir -> ant;
+        }
+        //trocando eles de lugar enquanto o item maior estiver antes do menor
+        if(atual_esq != NULL && atual_dir != NULL && atual_esq != atual_dir){
+            int valor_atual_esq = atual_esq -> valor;
+            atual_esq -> valor = atual_dir -> valor;
+            atual_dir -> valor = valor_atual_esq;
+        }
+    }
+
+    //trocando o valor do pivot
+    if(atual_esq != ultimo){
+        int valor_atual_esq = atual_esq -> valor;
+        atual_esq -> valor = ultimo -> valor;
+        ultimo -> valor = valor_atual_esq;
+    }
+
+    //fazendo o quick sort para as duas outras metades agora
+    QuickSort(primeiro, atual_esq -> ant);
+    QuickSort(atual_esq -> prox, ultimo);
+}
