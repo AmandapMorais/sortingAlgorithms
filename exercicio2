@@ -1,0 +1,117 @@
+/*
+https://leetcode.com/problems/average-salary-excluding-the-minimum-and-maximum-salary/description/?envType=problem-list-v2&envId=sorting&difficulty=EASY
+
+You are given an array of unique integers salary where salary[i] is the salary of the ith employee.
+
+Return the average salary of employees excluding the minimum and maximum salary. Answers within 10-5 of the actual answer will be accepted.
+
+ 
+
+Example 1:
+
+Input: salary = [4000,3000,1000,2000]
+Output: 2500.00000
+Explanation: Minimum salary and maximum salary are 1000 and 4000 respectively.
+Average salary excluding minimum and maximum salary is (2000+3000) / 2 = 2500
+Example 2:
+
+Input: salary = [1000,2000,3000]
+Output: 2000.00000
+Explanation: Minimum salary and maximum salary are 1000 and 3000 respectively.
+Average salary excluding minimum and maximum salary is (2000) / 1 = 2000
+ 
+
+Constraints:
+
+3 <= salary.length <= 100
+1000 <= salary[i] <= 106
+All the integers of salary are unique.
+*/
+
+#include <stdio.h>
+
+void mergeSort(int* salary, int left, int right);
+void average(int* salary, int salarySize);
+
+int main(){
+    int salarySize;
+
+    printf("Number of employees: ");
+    scanf("%d",&salarySize);
+
+    int salary[salarySize];
+
+    printf("Type the salaries: \n");
+    for(int i = 0; i<salarySize; i++){
+        scanf("%d", &salary[i]);
+    }
+    
+
+    printf("The average salary is: ");
+    average(salary,salarySize);
+
+    return 0;
+}
+
+void mergeSort(int* salary, int left, int right){
+    
+    if (left >= right) {
+        return;  
+    }
+
+    int mid = left + (right - left) / 2;
+
+    mergeSort(salary, left, mid);
+    mergeSort(salary, mid + 1, right);
+
+    int leftSize = mid - left + 1;
+    int rightSize = right - mid;
+    int leftArray[leftSize];
+    int rightArray[rightSize];
+
+    for (int i = 0; i < leftSize; i++)
+        leftArray[i] = salary[left + i];
+    for (int i = 0; i < rightSize; i++)
+        rightArray[i] = salary[mid + 1 + i];
+
+    int i = 0, j = 0, k = left;
+    while (i < leftSize && j < rightSize) {
+        if (leftArray[i] <= rightArray[j]) {
+            salary[k] = leftArray[i];
+            i++;
+        } else {
+            salary[k] = rightArray[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < leftSize) {
+        salary[k] = leftArray[i];
+        i++;
+        k++;
+    }
+
+    while (j < rightSize) {
+        salary[k] = rightArray[j];
+        j++;
+        k++;
+    }
+}
+
+void average(int* salary, int salarySize) {
+    
+    //ordenando os salarios
+    mergeSort(salary,0,salarySize - 1);
+
+    //fazendo a media sem contar com o primeiro e o ultimo indice, ou seja, elimando o menor e o maior
+    int sum = 0;
+    for (int i = 1; i<salarySize - 1; i++){
+        sum += salary[i];
+    }
+
+    double averageSalary = 0;
+    averageSalary = sum /(salarySize - 2);
+
+    printf("%lf",averageSalary);
+}
